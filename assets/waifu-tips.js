@@ -47,6 +47,72 @@ $('.waifu-tool .fui-user').click(function (){
     loadRandModel();
 });
 
+$('.waifu-tool .fui-info-circle').click(function (){
+    //window.open('https://imjad.cn/archives/lab/add-dynamic-poster-girl-with-live2d-to-your-blog-02');
+    window.open('https://www.fghrsh.net/post/123.html');
+});
+
+$('.waifu-tool .fui-cross').click(function (){
+    sessionStorage.setItem('waifu-dsiplay', 'none');
+    showMessage('愿你有一天能与重要的人重逢', 1300, true);
+    window.setTimeout(function() {$('.waifu').hide();}, 1300);
+});
+
+$('.waifu-tool .fui-photo').click(function (){
+    showMessage('照好了嘛，是不是很可爱呢？', 5000, true);
+    window.Live2D.captureName = 'Pio.png';
+    window.Live2D.captureFrame = true;
+});
+
+(function (){
+    var text;
+    //var SiteIndexUrl = 'https://www.fghrsh.net/';  // 手动指定主页
+    var SiteIndexUrl = window.location.protocol+'//'+window.location.hostname+'/';  // 自动获取主页
+    
+    if (window.location.href == SiteIndexUrl) {      // 如果是主页
+        var now = (new Date()).getHours();
+        if (now > 23 || now <= 5) {
+            text = '你是夜猫子呀？这么晚还不睡觉，明天起的来嘛';
+        } else if (now > 5 && now <= 7) {
+            text = '早上好！一日之计在于晨，美好的一天就要开始了';
+        } else if (now > 7 && now <= 11) {
+            text = '上午好！工作顺利嘛，不要久坐，多起来走动走动哦！';
+        } else if (now > 11 && now <= 14) {
+            text = '中午了，工作了一个上午，现在是午餐时间！';
+        } else if (now > 14 && now <= 17) {
+            text = '午后很容易犯困呢，今天的运动目标完成了吗？';
+        } else if (now > 17 && now <= 19) {
+            text = '傍晚了！窗外夕阳的景色很美丽呢，最美不过夕阳红~';
+        } else if (now > 19 && now <= 21) {
+            text = '晚上好，今天过得怎么样？';
+        } else if (now > 21 && now <= 23) {
+            text = '已经这么晚了呀，早点休息吧，晚安~';
+        } else {
+            text = '嗨~ 快来逗我玩吧！';
+        }
+    } else {
+        if(document.referrer !== ''){
+            var referrer = document.createElement('a');
+            referrer.href = document.referrer;
+            var domain = referrer.hostname.split('.')[1];
+            if (window.location.hostname == referrer.hostname) {
+                text = '欢迎阅读<span style="color:#0099cc;">『' + document.title.split(' - ')[0] + '』</span>';
+            } else if (domain == 'baidu') {
+                text = 'Hello! 来自 百度搜索 的朋友<br>你是搜索 <span style="color:#0099cc;">' + referrer.search.split('&wd=')[1].split('&')[0] + '</span> 找到的我吗？';
+            } else if (domain == 'so') {
+                text = 'Hello! 来自 360搜索 的朋友<br>你是搜索 <span style="color:#0099cc;">' + referrer.search.split('&q=')[1].split('&')[0] + '</span> 找到的我吗？';
+            } else if (domain == 'google') {
+                text = 'Hello! 来自 谷歌搜索 的朋友<br>欢迎阅读<span style="color:#0099cc;">『' + document.title.split(' - ')[0] + '』</span>';
+            } else {
+                text = 'Hello! 来自 <span style="color:#0099cc;">' + referrer.hostname + '</span> 的朋友';
+            }
+        } else {
+            text = '欢迎阅读<span style="color:#0099cc;">『' + document.title.split(' - ')[0] + '』</span>';
+        }
+    }
+    showMessage(text, 6000);
+})();
+
 //window.hitokotoTimer = window.setInterval(showHitokoto,30000);
 /* 检测用户活动状态，并在空闲时 定时显示一言 */
 var getActed = false;
@@ -66,6 +132,24 @@ function ifActed() {
 function elseActed() {
     getActed = hitokotoInterval = false;
     window.clearInterval(hitokotoTimer);
+}
+
+function showHitokoto(){
+	/* 增加 hitokoto.cn API */
+    $.getJSON('https://v1.hitokoto.cn',function(result){
+        var text = '这句一言来自 <span style="color:#0099cc;">『{source}』</span>，是 <span style="color:#0099cc;">{creator}</span> 在 hitokoto.cn 投稿的。';
+        text = text.render({source: result.from, creator: result.creator});
+        showMessage(result.hitokoto, 5000);
+        window.setTimeout(function() {showMessage(text, 3000);}, 5000);
+    });
+	/*
+	$.getJSON('https://api.fghrsh.net/hitokoto/rand/?encode=jsc&uid=3335',function(result){
+        var text = '这句一言出处是 <span style="color:#0099cc;">『{source}』</span>，是 <span style="color:#0099cc;">FGHRSH</span> 在 {date} 收藏的！';
+        text = text.render({source: result.source, date: result.date});
+        showMessage(result.hitokoto, 5000);
+        window.setTimeout(function() {showMessage(text, 3000);}, 5000);
+    });
+	*/
 }
 
 function showMessage(text, timeout, flag){
@@ -159,6 +243,14 @@ function loadRandModel(){
         cache: false,
         url: 'https://api.fghrsh.net/live2d/'+modelTexturesRandMode+'_textures/?id='+modelId+'-'+modelTexturesId,
         dataType: "json",
+        success: function (result){
+            if (result.textures['id'] == 1 && (modelTexturesId == 1 || modelTexturesId == 0)) {
+                showMessage('我还没有其他衣服呢', 3000, true);
+            } else {
+                showMessage('我的新衣服好看嘛', 3000, true);
+            }
+            loadModel(modelId, result.textures['id']);
+        }
     });
 }
 
